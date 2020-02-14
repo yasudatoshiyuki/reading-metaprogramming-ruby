@@ -8,6 +8,7 @@ class TryOut
   end
 
   def full_name
+
     name = if @last_name
       "#{@first_name} #{@middle_name} #{@last_name}"
     else
