@@ -30,10 +30,13 @@ end
 # - C1.ancestors.first(2) が [C1, M1] となる
 # - C1.new.name が 'C1' を返す
 class C1
+  include M1
   def name
     'C1'
   end
 end
+
+binding.pry
 
 
 # Q2.

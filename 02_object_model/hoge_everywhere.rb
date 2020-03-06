@@ -6,3 +6,11 @@
 # - Class
 # - Hash
 # - TrueClass
+
+[String, Integer, Numeric, Class, Hash, TrueClass].each do |klass|
+  klass.class_eval do
+    def hoge
+      "hoge"
+    end
+  end
+end
