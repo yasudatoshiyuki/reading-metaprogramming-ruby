@@ -6,6 +6,19 @@ TryOver3 = Module.new
 # - `test_` メソッドがこのクラスに実装されていなくても `test_` から始まるメッセージに応答することができる
 # - TryOver3::A1 には `test_` から始まるインスタンスメソッドが定義されていない
 
+Object.const_get('TryOver3').const_set('A1', Class.new do
+  def run_test
+    nil
+  end
+
+  def method_missing(m, *args, &block)
+    if m.match(/^test_/)
+      run_test
+    else
+      raise NoMethodError
+    end
+  end
+end)
 
 # Q2
 # 以下要件を満たす TryOver3::A2Proxy クラスを作成してください。
