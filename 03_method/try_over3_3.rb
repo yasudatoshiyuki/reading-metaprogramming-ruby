@@ -34,9 +34,17 @@ end
 class TryOver3::A2Proxy
   def initialize(a2)
     @source = a2
-    @source.class.instance_methods(false).each do |name|
-      self.define_singleton_method(name, &@source.method(name))
-    end
+    #@source.class.instance_methods(false).each do |name|
+      #self.define_singleton_method(name, &@source.method(name))
+    #end
+  end
+
+  def method_missing(name, *args, &block)
+    @source.send(name, *args, &block)
+  end
+
+  def respond_to_missing?(method_name, include_private = false)
+    @source.respond_to? method_name
   end
 end
 
@@ -51,14 +59,25 @@ module TryOver3::OriginalAccessor2
         @attr
       end
 
+      mod.instance_variable_set("@attr_sym_name", attr_sym)
+
       define_method "#{attr_sym}=" do |value|
-        if [true, false].include?(value) && !respond_to?("#{attr_sym}?")
-          self.class.define_method "#{attr_sym}?" do
-            @attr == true
+        self.class_eval do
+          def method_missing(name, *args, &block)
+            if !!@attr == @attr && name.to_s == "#{self.class.instance_variable_get("@attr_sym_name")}?"
+              @attr == true
+            else
+              raise NoMethodError
+            end
           end
-        else
-          self.instance_eval("undef :#{attr_sym}?")
         end
+        #if [true, false].include?(value) && !respond_to?("#{attr_sym}?")
+          #self.class.define_method "#{attr_sym}?" do
+            #@attr == true
+          #end
+        #else
+          #self.instance_eval("undef :#{attr_sym}?")
+        #end
         @attr = value
       end
     end
@@ -101,14 +120,27 @@ module TryOver3::TaskHelper
     klass.define_singleton_method :task do |name, &task_block|
       new_klass = Class.new do
         define_singleton_method :run do
+          warn klass.instance_variable_get("@warning") if klass.instance_variable_get("@warning")
           puts "start #{Time.now}"
           block_return = task_block.call
           puts "finish #{Time.now}"
           block_return
         end
       end
-      new_klass_name = name.to_s.split("_").map{ |w| w[0] = w[0].upcase; w }.join
-      const_set(new_klass_name, new_klass)
+      #new_klass_name = name.to_s.split("_").map{ |w| w[0] = w[0].upcase; w }.join
+      # const_set(new_klass_name, new_klass)
+      klass.instance_variable_set("@new_klass", new_klass)
+      def klass.const_missing(name)
+        @warning = "Warning: TryOver3::A5Task::Foo.run is duplicated"
+        @new_klass
+      end
+
+      klass.define_singleton_method name do
+        # task(name, &task_block)
+        new_klass.run(&task_block)
+        # Object.const_get("#{klass}::#{new_klass_name}").run(&task_block)
+
+      end
     end
   end
 end
