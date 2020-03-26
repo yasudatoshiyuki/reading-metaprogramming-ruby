@@ -56,6 +56,8 @@ module TryOver3::OriginalAccessor2
           self.class.define_method "#{attr_sym}?" do
             @attr == true
           end
+        else
+          self.instance_eval("undef :#{attr_sym}?")
         end
         @attr = value
       end
