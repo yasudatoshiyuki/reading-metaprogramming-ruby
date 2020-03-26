@@ -11,8 +11,8 @@ Object.const_get('TryOver3').const_set('A1', Class.new do
     nil
   end
 
-  def method_missing(m, *args, &block)
-    if m.match(/^test_/)
+  def method_missing(name, *args, &block)
+    if name.match(/^test_/)
       run_test
     else
       raise NoMethodError
@@ -31,6 +31,14 @@ class TryOver3::A2
   end
 end
 
+class TryOver3::A2Proxy
+  def initialize(a2)
+    @source = a2
+    @source.class.instance_methods(false).each do |name|
+      self.define_singleton_method(name, &@source.method(name))
+    end
+  end
+end
 
 # Q3
 # 前回 OriginalAccessor の my_attr_accessor で定義した getter/setter に boolean の値が入っている場合には #{name}? が定義されるようなモジュールを実装しました。
