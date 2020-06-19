@@ -27,18 +27,17 @@ class EvilMailbox
     end
   end
 
-  def method_missing(name, *args, &block)
+  def send_mail(*args, &block)
     args = @prc.call(args) unless @prc.nil?
-    result = @obj.send(name, *args)
-    if name == :send_mail
-      if block_given?
-        block.call(result)
-      else
-        nil
-      end
-
-    elsif name == :receive_mail
-      result
+    result = @obj.send(:send_mail, *args)
+    if block_given?
+      block.call(result)
+    else
+      nil
     end
+  end
+
+  def receive_mail(*args, &block)
+    @obj.send(:receive_mail, *args)
   end
 end
