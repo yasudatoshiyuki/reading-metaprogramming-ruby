@@ -46,12 +46,12 @@ class TestSimpleBot < MiniTest::Test
         "i'm #{settings.name}"
       end
       respond 'how old are you?' do
-        "i'm #{settings.age}"
+        "i'm #{settings.age} years old"
       end
     end
 
     assert_equal "i'm bot", klass.new.ask("what is your name?")
-    assert_equal 10, klass.new.ask("how old are you?")
+    assert_equal "i'm 10 years old", klass.new.ask("how old are you?")
   end
 
   def test_global_setting_random
