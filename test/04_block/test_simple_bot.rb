@@ -41,17 +41,17 @@ class TestSimpleBot < MiniTest::Test
   def test_global_setting_multiple_call
     klass = bot_for_test do
       setting :name, 'bot'
-      setting :name2, 'bot2'
+      setting :age, 10
       respond 'what is your name?' do
         "i'm #{settings.name}"
       end
-      respond 'what is your name2?' do
-        "i'm #{settings.name2}"
+      respond 'how old are you?' do
+        "i'm #{settings.age}"
       end
     end
 
     assert_equal "i'm bot", klass.new.ask("what is your name?")
-    assert_equal "i'm bot2", klass.new.ask("what is your name2?")
+    assert_equal 10, klass.new.ask("how old are you?")
   end
 
   def test_global_setting_random
