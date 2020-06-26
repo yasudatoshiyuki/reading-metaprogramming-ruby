@@ -38,6 +38,19 @@ class TestSimpleBot < MiniTest::Test
     assert_equal "i'm bot", klass.new.ask("what is your name?")
   end
 
+  def test_global_setting_random
+    code = SecureRandom.hex
+
+    klass = bot_for_test do
+      setting :code, code
+      respond 'tell me your code' do
+        "code is #{settings.code}"
+      end
+    end
+
+    assert_equal "code is #{code}", klass.new.ask('tell me your code')
+  end
+
   def test_global_setting_multiple_call
     klass = bot_for_test do
       setting :name, 'bot'
@@ -52,18 +65,5 @@ class TestSimpleBot < MiniTest::Test
 
     assert_equal "i'm bot", klass.new.ask("what is your name?")
     assert_equal "i'm 10 years old", klass.new.ask("how old are you?")
-  end
-
-  def test_global_setting_random
-    code = SecureRandom.hex
-
-    klass = bot_for_test do
-      setting :code, code
-      respond 'tell me your code' do
-        "code is #{settings.code}"
-      end
-    end
-
-    assert_equal "code is #{code}", klass.new.ask('tell me your code')
   end
 end
