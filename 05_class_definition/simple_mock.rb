@@ -37,3 +37,48 @@
 # obj.imitated_method #=> true
 # obj.called_times(:imitated_method) #=> 2
 # ```
+
+module SimpleMock
+  #def initialize(obj = nil)
+    #@obj = obj || Object.new
+  #end
+
+  def self.new
+    Object.new.class_eval do
+      include SimpleMock
+    end
+  end
+
+  def self.mock(obj)
+    obj.class_eval do
+      include SimpleMock
+    end
+    obj.mock
+  end
+
+  def mock
+    @watched_methods = []
+    @method_called = []
+
+    #@obj.instance_variable_set(:@watched_methods, [])
+    #@obj.instance_variable_set(:@method_called, {})
+    @obj.define_singleton_method :expects do |method_name, return_value|
+      define_singleton_method method_name do
+        if @watched_methods.include? method_name
+          @method_called[method_name] = @method_called[method_name] + 1 || 1
+        end
+        return_value
+      end
+    end
+    @obj.define_singleton_method :watch do |method_name|
+      unless @watched_methods.include? method_name
+        @watched_methods << method_name
+      end
+    end
+    @obj.define_singleton_method :called_times do |method_name|
+      if @watched_methods.include? method_name
+        @method_called[method_name]
+      end
+    end
+  end
+end
