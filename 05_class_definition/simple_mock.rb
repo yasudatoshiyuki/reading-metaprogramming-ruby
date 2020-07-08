@@ -44,9 +44,12 @@ module SimpleMock
   #end
 
   def self.new
-    Object.new.class_eval do
+    obj = Object.new
+    obj.class_eval do
       include SimpleMock
     end
+    obj.mock
+    obj
   end
 
   def self.mock(obj)
@@ -60,25 +63,27 @@ module SimpleMock
     @watched_methods = []
     @method_called = []
 
-    #@obj.instance_variable_set(:@watched_methods, [])
-    #@obj.instance_variable_set(:@method_called, {})
-    @obj.define_singleton_method :expects do |method_name, return_value|
+    define_singleton_method :expects do |method_name, return_value|
       define_singleton_method method_name do
+        binding.pry
         if @watched_methods.include? method_name
+        binding.pry
           @method_called[method_name] = @method_called[method_name] + 1 || 1
         end
         return_value
       end
     end
-    @obj.define_singleton_method :watch do |method_name|
+    define_singleton_method :watch do |method_name|
       unless @watched_methods.include? method_name
         @watched_methods << method_name
       end
     end
-    @obj.define_singleton_method :called_times do |method_name|
+    define_singleton_method :called_times do |method_name|
+        binding.pry
       if @watched_methods.include? method_name
         @method_called[method_name]
       end
     end
+    self
   end
 end
